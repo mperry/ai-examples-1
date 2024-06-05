@@ -13,6 +13,7 @@ tiny_model = "tinyllama"
 llama3_model = "llama3"
 current_model = tiny_model
 print(f"The model used is {current_model}")
+time_decimal_places = 1
 
 def generate_response(question, progress=gr.Progress()):
     conversation_history.append(question)
@@ -28,8 +29,8 @@ def generate_response(question, progress=gr.Progress()):
     start_time = time.perf_counter()
     response = requests.post(url, headers=headers, data=json.dumps(data))
     end_time = time.perf_counter()
-    elapsed_time = round(end_time - start_time, 2)
-    print(f"Elapsed time {elapsed_time:.2f}s")
+    elapsed_time = round(end_time - start_time, time_decimal_places)
+    print(f"Elapsed time {elapsed_time}s")
 
     if response.status_code == 200:
         response_text = response.text
