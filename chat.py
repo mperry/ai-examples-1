@@ -11,6 +11,7 @@ headers = {
 conversation_history = []
 tiny_model = "tinyllama"
 llama3_model = "llama3"
+llama2_model = "llama2"
 current_model = tiny_model
 print(f"The model used is {current_model}")
 time_decimal_places = 1
