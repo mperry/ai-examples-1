@@ -9,10 +9,12 @@ headers = {
     'Content-Type': 'application/json',
 }
 conversation_history = []
+prompt_history = []
 tiny_model = "tinyllama"
 llama3_model = "llama3.2"
 llama2_model = "llama2"
 default_model = tiny_model
+supported_models = [tiny_model, llama3_model]
 print(f"The default model is {default_model}")
 time_decimal_places = 1
 log_response = True
@@ -44,7 +46,9 @@ def generate_response(model, question, progress=gr.Progress()):
         data = json.loads(response_text)
         actual_response = data["response"]
         conversation_history.append(actual_response)
-        return actual_response, model, elapsed_time
+        prompt_history.append(question)
+        history_text = "\n".join(prompt_history)
+        return actual_response, model, elapsed_time, history_text
     else:
         print("Error:", response.status_code, response.text)
         return None
@@ -53,10 +57,13 @@ def run_ui():
     iface = gr.Interface(
         fn=generate_response,
         inputs=[
-            gr.Dropdown([tiny_model, llama3_model], label="model", value=default_model),
-            gr.Textbox(lines=2, placeholder="Enter your prompt here...")
+            gr.Dropdown(supported_models, label="Model", value=default_model),
+            gr.Textbox(lines=4, placeholder="Enter your prompt here...", label="Prompt")
         ],
-        outputs=["text", gr.Textbox(label="Model"), gr.Number(label="Runtime (s)")]
+        outputs=[
+            gr.Textbox(label="Response"), gr.Textbox(label="Model"), gr.Number(label="Runtime (s)"),
+            gr.Textbox(label="History", lines=10, interactive=False)
+        ]
     )
     iface.launch(debug=True)
 
