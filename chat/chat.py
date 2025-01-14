@@ -12,18 +12,21 @@ conversation_history = []
 tiny_model = "tinyllama"
 llama3_model = "llama3.2"
 llama2_model = "llama2"
-current_model = llama3_model
-print(f"The model used is {current_model}")
+default_model = tiny_model
+print(f"The default model is {default_model}")
 time_decimal_places = 1
+log_response = True
+stream_response = False
 
-def generate_response(question, progress=gr.Progress()):
+def generate_response(model, question, progress=gr.Progress()):
     conversation_history.append(question)
     full_prompt = "\n".join(conversation_history)
-    p = format_prompt(question, current_model)
+    p = format_prompt(question, model)
+    print(f"The model is: {model}\n")
     print(f"The question is:\n{p}")
     data = {
-        "model": current_model,
-        "stream": False,
+        "model": model,
+        "stream": stream_response,
         "prompt": p,
     }
 
@@ -35,10 +38,13 @@ def generate_response(question, progress=gr.Progress()):
 
     if response.status_code == 200:
         response_text = response.text
+        if log_response:
+            print(f"The response is:\n{response_text}")
+
         data = json.loads(response_text)
         actual_response = data["response"]
         conversation_history.append(actual_response)
-        return actual_response, current_model, elapsed_time
+        return actual_response, model, elapsed_time
     else:
         print("Error:", response.status_code, response.text)
         return None
@@ -46,7 +52,10 @@ def generate_response(question, progress=gr.Progress()):
 def run_ui():
     iface = gr.Interface(
         fn=generate_response,
-        inputs=gr.Textbox(lines=2, placeholder="Enter your prompt here..."),
+        inputs=[
+            gr.Dropdown([tiny_model, llama3_model], label="model", value=default_model),
+            gr.Textbox(lines=2, placeholder="Enter your prompt here...")
+        ],
         outputs=["text", gr.Textbox(label="Model"), gr.Number(label="Runtime (s)")]
     )
     iface.launch(debug=True)
