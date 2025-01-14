@@ -1,2 +1,5 @@
+
 *.iml
 .idea/
+chat/.gradio
+chat/venv
