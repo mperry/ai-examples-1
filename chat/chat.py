@@ -76,13 +76,8 @@ def format_prompt(question, model):
         return question
 
 def tiny_prompt(question):
-    p1 = f"""
-<|system|>
-You are a friendly chatbot.</s>
-<|user|>
-{question}</s>
-<|assistant|>
-"""
+    # https://ollama.com/library/tinyllama:latest/blobs/af0ddbdaaa26
+    # https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0
     p2 = f"""
 <|system|>
 You are a friendly chatbot.
@@ -93,10 +88,13 @@ You are a friendly chatbot.
     return p2
 
 def llama3(question):
+    # https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_1/#prompt-template
+    # https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/text_prompt_format.md
     return f"""
-<|begin_of_text|><|start_header_id|>user<|end_header_id|>
+<|begin_of_text|>
+<|start_header_id|>user<|end_header_id|>
 {question}
-<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+<|end_of_text|>
 """
 
 run_ui()

@@ -20,4 +20,5 @@ pip install -r requirements.txt
 To run use:
 python chat.py
 
+Need to try the Ollama Python lib, see https://github.com/ollama/ollama-python
 
