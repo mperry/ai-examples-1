@@ -8,21 +8,22 @@ url = "http://localhost:11434/api/generate"
 headers = {
     'Content-Type': 'application/json',
 }
-conversation_history = []
+response_history = []
 prompt_history = []
 tiny_model = "tinyllama"
 llama3_model = "llama3.2"
 llama2_model = "llama2"
+deepseek_model = "deepseek-r1:8b"
+deepseek_coder_model = "deepseek-coder-v2"
 default_model = tiny_model
-supported_models = [tiny_model, llama3_model]
+supported_models = [tiny_model, llama3_model, deepseek_model, deepseek_coder_model]
 print(f"The default model is {default_model}")
 time_decimal_places = 1
 log_response = True
 stream_response = False
 
 def generate_response(model, question, progress=gr.Progress()):
-    conversation_history.append(question)
-    full_prompt = "\n".join(conversation_history)
+    prompt_history.append([question, model])
     p = format_prompt(question, model)
     print(f"The model is: {model}\n")
     print(f"The question is:\n{p}")
@@ -45,10 +46,8 @@ def generate_response(model, question, progress=gr.Progress()):
 
         data = json.loads(response_text)
         actual_response = data["response"]
-        conversation_history.append(actual_response)
-        prompt_history.append(question)
-        history_text = "\n".join(prompt_history)
-        return actual_response, model, elapsed_time, history_text
+        response_history.append([actual_response, elapsed_time])
+        return actual_response, model, elapsed_time, prompt_history, response_history
     else:
         print("Error:", response.status_code, response.text)
         return None
@@ -62,7 +61,8 @@ def run_ui():
         ],
         outputs=[
             gr.Textbox(label="Response"), gr.Textbox(label="Model"), gr.Number(label="Runtime (s)"),
-            gr.Textbox(label="History", lines=10, interactive=False)
+            gr.Textbox(label="Prompts", lines=10, interactive=False),
+            gr.Textbox(label="Responses", lines=10, interactive=False)
         ]
     )
     iface.launch(debug=True)
